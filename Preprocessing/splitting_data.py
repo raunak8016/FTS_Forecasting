@@ -20,7 +20,6 @@ def split_csv_by_month(csv_file, output_prefix):
     nov_df.to_csv(f'{output_prefix}_november.csv', header=True, index=False)
     dec_df.to_csv(f'{output_prefix}_december.csv', header=True, index=False)
 
-    print("Data split into November and December CSV files, excluding weekends, specific dates, and restricting times.")
-
+    print("Data split into November and December CSV files, excluding weekends, specific dates, and restricting times.") 
 
 split_csv_by_month('FTS_Forecasting\processed_data\AAPL_Prices_November_2020.csv', r'FTS_Forecasting\processed_data\2020_AAPL')

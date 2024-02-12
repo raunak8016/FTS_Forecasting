@@ -55,5 +55,6 @@ def main():
     aapl_data.to_csv('FTS_Forecasting/processed_data/AAPL_Prices_November_2020.csv', index=False)
     print("CSV file created successfully.")
 
+
 if __name__ == "__main__":
     main()

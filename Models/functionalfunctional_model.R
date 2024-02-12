@@ -2,13 +2,15 @@ library(fda)
 library(tidyverse)
 library(lubridate)
 
-setwd("C:/Users/rauna/OneDrive/Desktop/UNI/4th YR/Winter/MATH 518/RCode/Project/")
+
+# print wd - should be FTS_Forecasting/
+getwd()
 
 
 # data processing
 basis = create.bspline.basis(c())
 
-prices = read.csv("2020_AAPL_november.csv", stringsAsFactors = FALSE)
+prices = read.csv("ProcessedData/2020_AAPL_december.csv", stringsAsFactors = FALSE)
 prices$AAPL <- as.numeric(prices$AAPL)
 
 
@@ -98,3 +100,13 @@ persp(Prices.times, Prices.times, Prices.beta1mat,
 
 
 predict(Prices.linmod, newdata=AAPLNovPricesMatfd[19:20])
+
+
+
+
+
+
+
+
+
+
