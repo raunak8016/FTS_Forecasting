@@ -1,6 +1,8 @@
 library(fda)
 library(tidyverse)
 library(lubridate)
+library(tseries)
+
 
 
 # print wd - should be FTS_Forecasting/
@@ -10,7 +12,7 @@ getwd()
 # data processing
 basis = create.bspline.basis(c())
 
-prices = read.csv("ProcessedData/2020_AAPL_december.csv", stringsAsFactors = FALSE)
+prices = read.csv("ProcessedData/2020_AAPL_november_returns.csv", stringsAsFactors = FALSE)
 prices$AAPL <- as.numeric(prices$AAPL)
 
 
@@ -19,6 +21,8 @@ summary(prices)
 any(is.na(prices))
 
 matplot(prices$AAPL, type="l")
+
+adf.test(prices$AAPL)
 
 prices$TimeStamp <- ymd_hms(prices$TimeStamp)
 prices$Date <- as.Date(prices$TimeStamp)
@@ -44,9 +48,6 @@ length(unique(prices$Date))
 
 dimnames(AAPLNovPricesMat)[[2]] <- paste('b', unique(prices$Date), sep='')
 
-# plot specific functions
-
-
 
 
 # smooth the intra-day pricing observations
@@ -64,15 +65,11 @@ D2fdPar = fdPar(PriceBasis, lambda=1e-7)
 AAPLNovPricesMatfd = smooth.basis(PriceTime, AAPLNovPricesMat, D2fdPar)$fd
 
 
-# view indivudal fit
 
-plotfit.fd(AAPLNovPricesMat, PriceTime, AAPLNovPricesMatfd)
-
-# Set up regression coefficients
-
-nbasis     = 23
-SwedeRng   = c(0,39)
-PricesBetaBasis = create.bspline.basis(SwedeRng,nbasis, norder=4)
+nbasis     = 25
+PricesRng   = c(0,39
+)
+PricesBetaBasis = create.bspline.basis(PricesRng,nbasis, norder=4)
 
 PricesBeta0Par = fdPar(PricesBetaBasis, 2, 1e-5)
 
@@ -100,13 +97,3 @@ persp(Prices.times, Prices.times, Prices.beta1mat,
 
 
 predict(Prices.linmod, newdata=AAPLNovPricesMatfd[19:20])
-
-
-
-
-
-
-
-
-
-
