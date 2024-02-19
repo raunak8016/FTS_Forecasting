@@ -2,7 +2,7 @@ library(lubridate)
 
 save_returns_data_matrix <- function(fileName) {
   df = read.csv(paste("ProcessedCSVData/", fileName, sep=""), stringsAsFactors = FALSE)
-  df$returns <- as.numeric(df$returns)
+  df$returns <- as.numeric(df[,2])
   
   
   
@@ -20,7 +20,7 @@ save_returns_data_matrix <- function(fileName) {
   
   # iterate over each day
   for (i in 1:ncol(returns_matrix)) {
-    # iterate over each 10-minute interval
+    # iterate over each minute interval
     for (j in 1:nrow(returns_matrix)) {
       returns_matrix[j, i] <- df$returns[(i-1)*nrow(returns_matrix) + j]
     }
@@ -35,4 +35,6 @@ save_returns_data_matrix <- function(fileName) {
   
 }
 
-save_returns_data_matrix(fileName="2020_SPY_returns_2020-08-03_2020-09-30.csv")
+# save_returns_data_matrix(fileName="Ether_prices_2020-08-03_2020-09-30.csv")
+# 
+# save_returns_data_matrix(fileName="WHEAT_prices_2020-08-03_2020-09-30.csv")

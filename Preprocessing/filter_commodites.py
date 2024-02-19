@@ -4,6 +4,8 @@ from splitting_data import split_data_by_dates
 def read_prices_filter_by_commodity(path, commodity, start_date, end_date):
     df = pd.read_csv(path)
     df['TimeStamp'] = pd.to_datetime(df['Date'])
+    # change timestamp format to match other data
+    df['TimeStamp'] = df['TimeStamp'].dt.strftime('%Y-%m-%d %H:%M:%S')
 
     # drop all columns except for TimeStamp and commodity price
     df = df[['TimeStamp', commodity]]
