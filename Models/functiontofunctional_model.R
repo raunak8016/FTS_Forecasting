@@ -29,7 +29,7 @@ EquityReturnsMatfd = smooth.basis(ReturnsDayTime, EquityReturnsMat, D2fdPar)$fd
 
 # view fit of each functional time series curve
 
-# plotfit.fd(EquityReturnsMat, ReturnsDayTime, EquityReturnsMatfd)
+plotfit.fd(EquityReturnsMat, ReturnsDayTime, EquityReturnsMatfd)
 
 # Set up regression coefficients
 
