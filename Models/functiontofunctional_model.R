@@ -1,6 +1,5 @@
 library(fda)
 library(tidyverse)
-library(ftsa)
 
 equity_returns_matrix_name = "2020_SPY_returns_2020-08-03_2020-09-30_matrix"
 
@@ -12,7 +11,6 @@ dim(returns_matrix)
 
 EquityReturnsMat = as.matrix(returns_matrix)
 
-T_stationary(EquityReturnsMat)
 
 # generate functional time series
 
@@ -28,7 +26,6 @@ ReturnsBasis = create.bspline.basis(ReturnsDayRng, nbasis, norder)
 D2fdPar = fdPar(ReturnsBasis, lambda=0.0001)
 
 EquityReturnsMatfd = smooth.basis(ReturnsDayTime, EquityReturnsMat, D2fdPar)$fd
-
 
 # view fit of each functional time series curve
 
