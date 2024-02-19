@@ -1,26 +1,14 @@
 import pandas as pd
 
-# will be edited to include the new splitting requirements (feb 18th) - below function is deprecated
-def split_csv_by_month(csv_file, output_prefix):
-    # Read the CSV file
-    df = pd.read_csv(csv_file, parse_dates=['TimeStamp'])
+# Split data by dates
+def split_data_by_dates(csv_file_path, start_date, end_date):
+    st_date = pd.to_datetime(start_date)
+    en_date = pd.to_datetime(end_date)
+    df = pd.read_csv(csv_file_path)
+    df['TimeStamp'] = pd.to_datetime(df['TimeStamp'])
+    mask = (df['TimeStamp'] >= st_date) & (df['TimeStamp'] <= en_date)
+    df = df.loc[mask]
+    save_file_path = csv_file_path.split('.csv')[0] + f'_{start_date}_{end_date}.csv'
+    df.to_csv(save_file_path, index=False)
 
-    # Filter for November and December
-    nov_df = df[(df['TimeStamp'].dt.month == 11) & 
-                (df['TimeStamp'].dt.day != 26) &
-                (df['TimeStamp'].dt.weekday < 5) & 
-                (df['TimeStamp'].dt.time >= pd.to_datetime('9:30').time()) &
-                (df['TimeStamp'].dt.time <= pd.to_datetime('16:00').time())]
-
-    dec_df = df[(df['TimeStamp'].dt.month == 12) & 
-                (df['TimeStamp'].dt.day != 25) &
-                (df['TimeStamp'].dt.weekday < 5) &
-                (df['TimeStamp'].dt.time >= pd.to_datetime('9:30').time()) &
-                (df['TimeStamp'].dt.time <= pd.to_datetime('16:00').time())]
-
-    nov_df.to_csv(f'{output_prefix}_november.csv', header=True, index=False)
-    dec_df.to_csv(f'{output_prefix}_december.csv', header=True, index=False)
-
-    print("Data split into November and December CSV files, excluding weekends, specific dates, and restricting times.") 
-
-split_csv_by_month('FTS_Forecasting\processed_data\AAPL_Prices_November_2020.csv', r'FTS_Forecasting\processed_data\2020_AAPL')
+split_data_by_dates('ProcessedCSVData/2020_SPY_returns.csv', '2020-08-01', '2020-10-01')

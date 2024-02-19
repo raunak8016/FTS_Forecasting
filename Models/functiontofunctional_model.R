@@ -1,128 +1,93 @@
 library(fda)
 library(tidyverse)
-library(lubridate)
-library(tseries)
 
-
+equity_returns_matrix_name = "2020_SPY_returns_2020-08-01_2020-10-01_matrix"
 
 # data processing
-prices = read.csv("ProcessedCSVData/2020_AAPL_november_returns.csv", stringsAsFactors = FALSE)
-prices$returns <- as.numeric(prices$returns)
+mat =load(paste("ProcessedRData/", equity_returns_matrix_name, ".RData", sep=""))
+mat=as.matrix(returns_matrix)
+
+T_stationary(returns_matrix)
+
+dim(returns_matrix)
+
+EquityReturnsMat = as.matrix(returns_matrix)
 
 
+# generate functional time series
 
-summary(prices)
-
-any(is.na(prices))
-
-matplot(prices$returns, type="l")
-
-prices$TimeStamp <- ymd_hms(prices$TimeStamp)
-prices$Date <- as.Date(prices$TimeStamp)
-prices$Time <- format(prices$TimeStamp, "%H:%M:%S")
-
-prices_matrix = matrix(0, length(unique(prices$Time)), length(unique(prices$Date)))
-
-# iterate over each day
-for (i in 1:ncol(prices_matrix)) {
-  # iterate over each 10-minute interval
-  for (j in 1:nrow(prices_matrix)) {
-    prices_matrix[j, i] <- prices$returns[(i-1)*nrow(prices_matrix) + j]
-  }
-}
-
-matplot(prices_matrix, type="l")
-
-save(prices_matrix, file="ProcessedRData/prices_matrix.RData") 
-
-adf.test(prices$returns)
-
-dim(prices_matrix)
-
-AAPLNovPricesMat = as.matrix(prices_matrix)
-
-length(unique(prices$Date))
-
-dimnames(AAPLNovPricesMat)[[2]] <- paste('b', unique(prices$Date), sep='')
-
-
-# plot specific functions
-
-
-
-
-# smooth the intra-day pricing observations
-
+# number of time points in a day (10 minute intervals over trading hours)
 nbasis = 40
 norder = 4
 
-PriceTime = 0:39;
-PricesRng = c(0,39);
+ReturnsDayTime = 0:39;
+ReturnsDayRng = c(0,39);
 
-PriceBasis = create.bspline.basis(PricesRng, nbasis, norder)
+ReturnsBasis = create.bspline.basis(ReturnsDayRng, nbasis, norder)
 
-D2fdPar = fdPar(PriceBasis, lambda=0.5)
+D2fdPar = fdPar(ReturnsBasis, lambda=0.0001)
 
-AAPLNovPricesMatfd = smooth.basis(PriceTime, AAPLNovPricesMat, D2fdPar)$fd
+EquityReturnsMatfd = smooth.basis(ReturnsDayTime, EquityReturnsMat, D2fdPar)$fd
 
 
-# view indivudal fit
+# view fit of each functional time series curve
 
-plotfit.fd(AAPLNovPricesMat, PriceTime, AAPLNovPricesMatfd)
+# plotfit.fd(EquityReturnsMat, ReturnsDayTime, EquityReturnsMatfd)
 
 # Set up regression coefficients
 
-nbasis     = 23
-SwedeRng   = c(0,39)
-PricesBetaBasis = create.bspline.basis(SwedeRng,nbasis, norder=4)
+nbasis_regression = 23
+ReturnsRng = c(0,39)
 
-PricesBeta0Par = fdPar(PricesBetaBasis, 2, 1e-10)
+ReturnsBetaBasis = create.bspline.basis(ReturnsRng,nbasis_regression, norder=4)
+
+ReturnsBeta0Par = fdPar(ReturnsBetaBasis, 2, 1e-10)
 # PricesBeta0Par = fdPar(PriceBasis, 2, 1e-5)
 
-PricesBeta1fd  = bifd(matrix(0,23,23), PricesBetaBasis, PricesBetaBasis)
+ReturnsBeta1fd  = bifd(matrix(0,23,23), ReturnsBetaBasis, ReturnsBetaBasis)
 # PricesBeta1fd  = bifd(matrix(0,40,40), PriceBasis, PriceBasis)
 
-PricesBeta1Par = bifdPar(PricesBeta1fd, 2, 2, 1e3, 1e3)
+ReturnsBeta1Par = bifdPar(ReturnsBeta1fd, 2, 2, 1e3, 1e3)
 
-PricesBetaList = list(PricesBeta0Par, PricesBeta1Par)
+ReturnsBetaList = list(ReturnsBeta0Par, ReturnsBeta1Par)
 
-#  Define the dependent and independent variable objects
+#  Define the response and explanatory vars
+NextYear = EquityReturnsMatfd[2:ncol(EquityReturnsMat)] # Y(t)
+LastYear = EquityReturnsMatfd[1:(ncol(EquityReturnsMat)-1)] # X(t)
 
-NextYear = AAPLNovPricesMatfd[2:19] # Y(t)
-LastYear = AAPLNovPricesMatfd[1:18] # X(t)
+#  Function to Functionional Linear Model
 
-#  Do the regression analysis
+Returns.linmod = linmod(NextYear, LastYear, ReturnsBetaList)
 
-Prices.linmod = linmod(NextYear, LastYear, PricesBetaList)
+Returns.times = seq(0, 39, 1)
+Returns.beta1mat = eval.bifd(Returns.times, Returns.times, Returns.linmod$beta1estbifd)
 
-Prices.times = seq(1, 39, 1)
-Prices.beta1mat = eval.bifd(Prices.times, Prices.times, Prices.linmod$beta1estbifd)
-
-persp(Prices.times, Prices.times, Prices.beta1mat,
+persp(Returns.times, Returns.times, Returns.beta1mat,
       xlab="time", ylab="time",zlab="beta(s,t)",
       cex.lab=1.5,cex.axis=1.5)
+
 
 # setting up prediction
 
 # predict next year
-last_year = AAPLNovPricesMat[,19]
+last_year = EquityReturnsMat[,ncol(EquityReturnsMat)]
 
-lastYearNew <- smooth.basis(c(0:39),last_year,PriceBasis)
+lastYearNew <- smooth.basis(c(0:39),last_year,ReturnsBasis)
 lastYearNew <- lastYearNew$fd
-lastYearmat <- eval.fd(c(1:39), lastYearNew)
+lastYearmat <- eval.fd(c(0:39), lastYearNew)
 
-# calculate integral of beta1(s,t)*x_i(t) using inner product
-dim(Prices.beta1mat)
+# estimate integral of beta1(s,t)*x_i(t) using inner product
+dim(Returns.beta1mat)
 dim(lastYearmat)
-integral_estimate <-  Prices.beta1mat %*% lastYearmat
+integral_estimate <-  Returns.beta1mat %*% lastYearmat
 
 # add beta_0 to integral estimate
-Prices.beta0 = eval.fd(Prices.times, Prices.linmod$beta0estfd)
+Returns.beta0 = eval.fd(Returns.times, Returns.linmod$beta0estfd)
 dim(integral_estimate)
-dim(Prices.beta0)
-function_output <- Prices.beta0 + integral_estimate
+dim(Returns.beta0)
+function_output <- Returns.beta0 + integral_estimate
 
-plot(AAPLNovPricesMatfd)
+plot(EquityReturnsMatfd)
 plot(function_output, type="l")
 
 
