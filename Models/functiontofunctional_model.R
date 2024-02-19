@@ -47,8 +47,8 @@ ReturnsBeta1Par = bifdPar(ReturnsBeta1fd, 2, 2, 1e3, 1e3)
 ReturnsBetaList = list(ReturnsBeta0Par, ReturnsBeta1Par)
 
 #  Define the response and explanatory vars
-NextYear = EquityReturnsMatfd[2:ncol(EquityReturnsMat)] # Y(t)
-LastYear = EquityReturnsMatfd[1:(ncol(EquityReturnsMat)-1)] # X(t)
+NextYear = EquityReturnsMatfd[2:ncol(EquityReturnsMat)] # X_(i+1)(t)
+LastYear = EquityReturnsMatfd[1:(ncol(EquityReturnsMat)-1)] # X_i(t)
 
 #  Function to Functional Linear Model
 
