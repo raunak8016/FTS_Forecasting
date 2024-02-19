@@ -1,5 +1,6 @@
 library(fda)
 library(tidyverse)
+library(ftsa)
 
 equity_returns_matrix_name = "2020_SPY_returns_2020-08-03_2020-09-30_matrix"
 
@@ -7,12 +8,11 @@ equity_returns_matrix_name = "2020_SPY_returns_2020-08-03_2020-09-30_matrix"
 mat =load(paste("ProcessedRData/", equity_returns_matrix_name, ".RData", sep=""))
 mat=as.matrix(returns_matrix)
 
-T_stationary(returns_matrix)
-
 dim(returns_matrix)
 
 EquityReturnsMat = as.matrix(returns_matrix)
 
+T_stationary(EquityReturnsMat)
 
 # generate functional time series
 
@@ -42,10 +42,8 @@ ReturnsRng = c(0,39)
 ReturnsBetaBasis = create.bspline.basis(ReturnsRng,nbasis_regression, norder=4)
 
 ReturnsBeta0Par = fdPar(ReturnsBetaBasis, 2, 1e-10)
-# PricesBeta0Par = fdPar(PriceBasis, 2, 1e-5)
 
 ReturnsBeta1fd  = bifd(matrix(0,23,23), ReturnsBetaBasis, ReturnsBetaBasis)
-# PricesBeta1fd  = bifd(matrix(0,40,40), PriceBasis, PriceBasis)
 
 ReturnsBeta1Par = bifdPar(ReturnsBeta1fd, 2, 2, 1e3, 1e3)
 
@@ -55,7 +53,7 @@ ReturnsBetaList = list(ReturnsBeta0Par, ReturnsBeta1Par)
 NextYear = EquityReturnsMatfd[2:ncol(EquityReturnsMat)] # Y(t)
 LastYear = EquityReturnsMatfd[1:(ncol(EquityReturnsMat)-1)] # X(t)
 
-#  Function to Functionional Linear Model
+#  Function to Functional Linear Model
 
 Returns.linmod = linmod(NextYear, LastYear, ReturnsBetaList)
 
