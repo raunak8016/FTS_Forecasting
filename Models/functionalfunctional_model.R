@@ -2,7 +2,7 @@ library(fda)
 library(tidyverse)
 library(lubridate)
 library(tseries)
-
+library(ftsa)
 
 
 # data processing
@@ -34,6 +34,8 @@ for (i in 1:ncol(prices_matrix)) {
 matplot(prices_matrix, type="l")
 
 save(prices_matrix, file="ProcessedRData/prices_matrix.RData") 
+
+T_stationary(prices_matrix)
 
 adf.test(prices$returns)
 
@@ -111,7 +113,7 @@ lastYearNew <- smooth.basis(c(0:39),last_year,PriceBasis)
 lastYearNew <- lastYearNew$fd
 lastYearmat <- eval.fd(c(1:39), lastYearNew)
 
-# calculate integral of beta1(s,t)*x_i(t)
+# calculate integral of beta1(s,t)*x_i(t) using inner product
 dim(Prices.beta1mat)
 dim(lastYearmat)
 integral_estimate <-  Prices.beta1mat %*% lastYearmat

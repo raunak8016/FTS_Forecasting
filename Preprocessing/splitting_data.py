@@ -1,5 +1,6 @@
 import pandas as pd
 
+# will be edited to include the new splitting requirements (feb 18th) - below function is deprecated
 def split_csv_by_month(csv_file, output_prefix):
     # Read the CSV file
     df = pd.read_csv(csv_file, parse_dates=['TimeStamp'])
