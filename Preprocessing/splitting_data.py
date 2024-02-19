@@ -11,4 +11,4 @@ def split_data_by_dates(csv_file_path, start_date, end_date):
     save_file_path = csv_file_path.split('.csv')[0] + f'_{start_date}_{end_date}.csv'
     df.to_csv(save_file_path, index=False)
 
-split_data_by_dates('ProcessedCSVData/2020_SPY_returns.csv', '2020-08-01', '2020-10-01')
+split_data_by_dates('ProcessedCSVData/2020_SPY_returns.csv', '2020-08-09', '2020-09-30')

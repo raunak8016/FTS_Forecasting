@@ -35,4 +35,4 @@ save_returns_data_matrix <- function(fileName) {
   
 }
 
-save_returns_data_matrix(fileName="2020_SPY_returns_2020-08-01_2020-10-01.csv")
+save_returns_data_matrix(fileName="2020_SPY_returns_2020-08-03_2020-09-30.csv")
