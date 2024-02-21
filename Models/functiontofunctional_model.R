@@ -1,7 +1,8 @@
 library(fda)
 library(tidyverse)
+library(ftsa)
 
-equity_returns_matrix_name = "2020_SPY_returns_2020-08-03_2020-09-30_matrix"
+equity_returns_matrix_name = "2020_SPY_cidr_2020-06-15_2020-08-11_matrix"
 
 # data processing
 mat =load(paste("ProcessedRData/", equity_returns_matrix_name, ".RData", sep=""))
@@ -11,7 +12,19 @@ dim(returns_matrix)
 
 EquityReturnsMat = as.matrix(returns_matrix)
 
+# training set
+matplot(EquityReturnsMat[,1:35], type="l")
 
+# testing set
+matplot(EquityReturnsMat[,36:40], type="l")
+
+TestingEquityReturnsMat = EquityReturnsMat[,31:40]
+
+EquityReturnsMat = EquityReturnsMat[,1:30]
+
+matplot(EquityReturnsMat, type="l")
+
+T_stationary(EquityReturnsMat[,36:40])
 # generate functional time series
 
 # number of time points in a day (10 minute intervals over trading hours)

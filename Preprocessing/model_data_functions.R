@@ -34,7 +34,11 @@ save_returns_data_matrix <- function(fileName) {
   
   
 }
+# save_returns_data_matrix(fileName="2020_SPY_cidr_2020-06-15_2020-08-11.csv")
 
-# save_returns_data_matrix(fileName="Ether_prices_2020-08-03_2020-09-30.csv")
+save_returns_data_matrix(fileName="Ether_prices_2020-06-15_2020-08-11.csv")
 # 
-# save_returns_data_matrix(fileName="WHEAT_prices_2020-08-03_2020-09-30.csv")
+save_returns_data_matrix(fileName="WHEAT_prices_2020-06-15_2020-08-11.csv")
+save_returns_data_matrix(fileName="CORN_prices_2020-06-15_2020-08-11.csv")
+save_returns_data_matrix(fileName="SUGAR_prices_2020-06-15_2020-08-11.csv")
+save_returns_data_matrix(fileName="GASOLINE_prices_2020-06-15_2020-08-11.csv")

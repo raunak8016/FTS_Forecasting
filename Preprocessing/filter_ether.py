@@ -1,7 +1,7 @@
 import pandas as pd
 from splitting_data import split_data_by_dates
 
-def filter_ether(path, start_date, end_date):
+def filter_ether(path, start_date, end_date, exclude_dates=[]):
     df = pd.read_csv(path)
 
     # rename data column to TimeStamp and open column to Ether
@@ -17,6 +17,6 @@ def filter_ether(path, start_date, end_date):
     
     save_path = f'ProcessedCSVData/Ether_prices.csv'
     df.to_csv(save_path, index=False)
-    split_data_by_dates(save_path, start_date, end_date)
+    split_data_by_dates(save_path, start_date, end_date, exclude_dates=['2020-06-29','2020-07-03'])
 
-filter_ether('RawData/CryptoPricing/ether_intraday_prices.csv', '2020-08-03', '2020-09-30')
+filter_ether('RawData/CryptoPricing/ether_intraday_prices.csv', '2020-06-15', '2020-08-12', ['2020-06-29','2020-07-03'])
