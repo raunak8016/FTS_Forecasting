@@ -36,7 +36,7 @@ ReturnsDayRng = c(0,39);
 
 ReturnsBasis = create.bspline.basis(ReturnsDayRng, nbasis, norder)
 
-D2fdPar = fdPar(ReturnsBasis, lambda=0.0001)
+D2fdPar = fdPar(ReturnsBasis, lambda=0.8)
 
 EquityReturnsMatfd = smooth.basis(ReturnsDayTime, EquityReturnsMat, D2fdPar)$fd
 
@@ -71,7 +71,7 @@ Returns.times = seq(0, 39, 1)
 Returns.beta1mat = eval.bifd(Returns.times, Returns.times, Returns.linmod$beta1estbifd)
 
 persp(Returns.times, Returns.times, Returns.beta1mat,
-      xlab="time", ylab="time",zlab="beta(s,t)",
+      xlab="day", ylab="time",zlab="beta(s,t)",
       cex.lab=1.5,cex.axis=1.5)
 
 
