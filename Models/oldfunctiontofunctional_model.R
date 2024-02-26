@@ -2,6 +2,10 @@ library(fda)
 library(tidyverse)
 library(ftsa)
 
+par(mfrow = c(1, 2))
+plot(fts(x = 15:49, y = Australiafertility$y, xname = "Age", yname = "Fertility rate"))
+plot(fts(x = 15:49, y = Australiasmoothfertility$y, xname = "Age", yname = "Smoothed fertility rate"))
+
 equity_returns_matrix_name = "2020_SPY_cidr_2020-06-15_2020-08-11_matrix"
 
 # data processing

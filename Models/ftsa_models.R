@@ -9,6 +9,32 @@ returns_matrix = returns_matrix[,1:35]
 
 matplot(returns_matrix, type="l")
 
+# smooth returns_matrix
+
+nbasis = 40
+norder = 4
+
+ReturnsDayTime = 0:39;
+ReturnsDayRng = c(0,39);
+
+ReturnsBasis = create.bspline.basis(ReturnsDayRng, nbasis, norder)
+
+D2fdPar = fdPar(ReturnsBasis, lambda=0.8)
+
+EquityReturnsMatfd = smooth.basis(ReturnsDayTime, returns_matrix, D2fdPar)$fd
+
+returns_matrix = eval.fd(c(0:39), EquityReturnsMatfd)
+
+matplot(returns_matrix, type="l")
+
+EquityReturnsMatTestfd = smooth.basis(ReturnsDayTime, returns_matrix_test, D2fdPar)$fd
+
+returns_matrix_test = eval.fd(c(0:39), EquityReturnsMatTestfd)
+
+matplot(returns_matrix_test, type="l")
+
+# models
+
 T_stationary(returns_matrix)
 
 colnames(returns_matrix) <- c(1:35)
@@ -19,7 +45,8 @@ colnames(returns_matrix) <- c(1:35)
 fts_returns = fts(c(1:40), returns_matrix, xname="Time", yname="Return")
 
 fit = ftsm(y = fts_returns)
-pred = forecast(fit,h=5)$mean$y
+forecast = forecast(fit,h=5)
+pred = forecast$mean$y
 
 # plotting fit
 temp = fit$coeff %*% t(fit$basis)
@@ -35,8 +62,9 @@ lines(returns_matrix[,3],col='red')
 quartz()
 par( mfrow= c(3,2) )
 for (i in 1:ncol(returns_matrix_test)) {
-  plot(returns_matrix_test[,i],type='l')
+  plot(returns_matrix_test[,i],type='l', ylim=c(-1.5,1.5))
   lines(pred[,i], col='red')
+  lines(forecast$lower$y[,i], col = 3); lines(forecast$upper$y[,i], col = 3)
 }
 
 write.table(pred,file='ftsamodel_pred.csv',sep=',')
@@ -52,7 +80,7 @@ write.table(pred,file='ftsamodel_pred.csv',sep=',')
 # legend("topright", c("20", "23"), col = c("red", "blue"), lty = 1)
 
 
-pred2 = forecastfplsr(object = fts_returns,components=6,  h = 5)$y
+pred2 = forecastfplsr(object = fts_returns, components=6, h = 5)$y
 
 quartz()
 par( mfrow= c(3,2) )
