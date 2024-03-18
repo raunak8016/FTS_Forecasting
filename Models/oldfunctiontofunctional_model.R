@@ -91,7 +91,7 @@ lastYearmat <- eval.fd(c(0:39), lastYearNew)
 # estimate integral of beta1(s,t)*x_i(t) using inner product
 dim(Returns.beta1mat)
 dim(lastYearmat)
-integral_estimate <-  Returns.beta1mat %*% lastYearmat
+integral_estimate <- inprod(Returns.linmod$beta1estbifd,lastYearNew[,1])
 
 # add beta_0 to integral estimate
 Returns.beta0 = eval.fd(Returns.times, Returns.linmod$beta0estfd)

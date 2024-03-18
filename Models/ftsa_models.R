@@ -1,13 +1,31 @@
+library("fda")
 library("ftsa")
 library("rainbow")
 
-mat =load("ProcessedRData/2020_SPY_cidr_2020-06-15_2020-08-11_matrix.RData")
+# mat =load("ProcessedRData/2020_SPY_cidr_2020-06-15_2020-08-11_matrix.RData")
+mat =load("ProcessedRData/2020_SPY_prices_2020-06-15_2020-08-11_matrix.RData")
 mat =as.matrix(returns_matrix)
 
-returns_matrix_test = returns_matrix[,36:40]
+matplot(returns_matrix, type="l")
+
+# differencing
+
+first_difference_matrix = matrix(nrow=40,ncol=ncol(returns_matrix)-1)
+for (i in 1:ncol(first_difference_matrix)) {
+  first_difference_matrix[,i] = returns_matrix[,i+1] - returns_matrix[,i]
+}
+
+matplot(first_difference_matrix, type="l")  
+
+returns_matrix = first_difference_matrix
+
+# splitting  
+  
+returns_matrix_test = returns_matrix[,36:39]
 returns_matrix = returns_matrix[,1:35]
 
 matplot(returns_matrix, type="l")
+matplot(returns_matrix_test, type="l")
 
 # smooth returns_matrix
 
@@ -35,7 +53,7 @@ matplot(returns_matrix_test, type="l")
 
 # models
 
-T_stationary(returns_matrix)
+# T_stationary(returns_matrix)
 
 colnames(returns_matrix) <- c(1:35)
 

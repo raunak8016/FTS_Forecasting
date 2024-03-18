@@ -34,7 +34,7 @@ save_returns_data_matrix <- function(fileName) {
   
   
 }
-# save_returns_data_matrix(fileName="2020_SPY_cidr_2020-06-15_2020-08-11.csv")
+save_returns_data_matrix(fileName="2020_SPY_prices_2020-06-15_2020-08-11.csv")
 
 save_returns_data_matrix(fileName="Ether_prices_2020-06-15_2020-08-11.csv")
 # 
