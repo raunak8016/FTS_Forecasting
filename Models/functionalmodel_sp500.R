@@ -1,10 +1,5 @@
 library(fda)
 library(tidyverse)
-library(ftsa)
-
-par(mfrow = c(1, 2))
-plot(fts(x = 15:49, y = Australiafertility$y, xname = "Age", yname = "Fertility rate"))
-plot(fts(x = 15:49, y = Australiasmoothfertility$y, xname = "Age", yname = "Smoothed fertility rate"))
 
 equity_returns_matrix_name = "2020_SPY_cidr_2020-06-15_2020-08-11_matrix"
 
@@ -17,10 +12,10 @@ dim(returns_matrix)
 EquityReturnsMat = as.matrix(returns_matrix)
 
 # training set
-matplot(EquityReturnsMat[,1:35], type="l")
+matplot(EquityReturnsMat[,1:30], type="l", xlab="Time (15*x min)", ylab="CIDR (%)")
 
 # testing set
-matplot(EquityReturnsMat[,36:40], type="l")
+matplot(EquityReturnsMat[,31:40], type="l")
 
 TestingEquityReturnsMat = EquityReturnsMat[,31:40]
 
@@ -28,7 +23,7 @@ EquityReturnsMat = EquityReturnsMat[,1:30]
 
 matplot(EquityReturnsMat, type="l")
 
-T_stationary(EquityReturnsMat[,36:40])
+T_stationary(EquityReturnsMat)
 # generate functional time series
 
 # number of time points in a day (10 minute intervals over trading hours)
@@ -46,18 +41,18 @@ EquityReturnsMatfd = smooth.basis(ReturnsDayTime, EquityReturnsMat, D2fdPar)$fd
 
 # view fit of each functional time series curve
 
-plotfit.fd(EquityReturnsMat, ReturnsDayTime, EquityReturnsMatfd)
+# plotfit.fd(EquityReturnsMat, ReturnsDayTime, EquityReturnsMatfd)
 
 # Set up regression coefficients
 
-nbasis_regression = 23
+nbasis_regression = 40
 ReturnsRng = c(0,39)
 
 ReturnsBetaBasis = create.bspline.basis(ReturnsRng,nbasis_regression, norder=4)
 
 ReturnsBeta0Par = fdPar(ReturnsBetaBasis, 2, 1e-10)
 
-ReturnsBeta1fd  = bifd(matrix(0,23,23), ReturnsBetaBasis, ReturnsBetaBasis)
+ReturnsBeta1fd  = bifd(matrix(0,40,40), ReturnsBetaBasis, ReturnsBetaBasis)
 
 ReturnsBeta1Par = bifdPar(ReturnsBeta1fd, 2, 2, 1e3, 1e3)
 
@@ -75,33 +70,52 @@ Returns.times = seq(0, 39, 1)
 Returns.beta1mat = eval.bifd(Returns.times, Returns.times, Returns.linmod$beta1estbifd)
 
 persp(Returns.times, Returns.times, Returns.beta1mat,
-      xlab="day", ylab="time",zlab="beta(s,t)",
+      xlab="time", ylab="time",zlab="beta(s,t)",
       cex.lab=1.5,cex.axis=1.5)
 
 
 # setting up prediction
 
-# predict next year
-last_year = EquityReturnsMat[,ncol(EquityReturnsMat)]
+Yhat_fd <- fd(Returns.linmod$yhatfdobj$coefs, Returns.linmod$yhatfdobj$basis)
+plot.fd(Yhat_fd)
 
-lastYearNew <- smooth.basis(c(0:39),last_year,ReturnsBasis)
-lastYearNew <- lastYearNew$fd
-lastYearmat <- eval.fd(c(0:39), lastYearNew)
+beta0mat = eval.fd(Returns.times, Returns.linmod$beta0estfd)
+plot(beta0mat, type="l")
 
-# estimate integral of beta1(s,t)*x_i(t) using inner product
-dim(Returns.beta1mat)
-dim(lastYearmat)
-integral_estimate <- inprod(Returns.linmod$beta1estbifd,lastYearNew[,1])
 
-# add beta_0 to integral estimate
-Returns.beta0 = eval.fd(Returns.times, Returns.linmod$beta0estfd)
-dim(integral_estimate)
-dim(Returns.beta0)
-function_output <- Returns.beta0 + integral_estimate
+b1_s <- fd(Returns.linmod$beta1estbifd$coefs, Returns.linmod$beta1estbifd$sbasis)
+b1_t <- fd(Returns.linmod$beta1estbifd$coefs, Returns.linmod$beta1estbifd$tbasis)
+plot.fd(b1_s)
+plot.fd(b1_t)
 
-plot(EquityReturnsMatfd)
-plot(function_output, type="l")
+# checking forecasting setup
+integral_estimate <- inprod(b1_s,LastYear)
+Forecasted_next_year <- integral_estimate+beta0mat[1:40]
 
+Yhat_mat <- eval.fd(Returns.times, Yhat_fd)
+
+for (i in 1:8) {
+  matplot(EquityReturnsMat[,i], type="l", ylim=c(-2,2), main=paste(i), col="blue")
+  lines(Forecasted_next_year[,i+1], col="green")
+  lines(Yhat_mat[,i], col="red")
+}
+
+
+# forecast for test dataset
+prev_curve = EquityReturnsMat[,30]
+
+for (i in 1:8) {
+  prev_curve_fd = smooth.basis(ReturnsDayTime, prev_curve, D2fdPar)$fd
+  plot.fd(prev_curve_fd)
+  
+  f_integral_estimate <- inprod(b1_s,prev_curve_fd)
+  forecasted_test_years <- f_integral_estimate+beta0mat
+  
+  matplot(TestingEquityReturnsMat[,i], type="l", ylim=c(-2,2), main=paste("Forecast", i))
+  lines(forecasted_test_years)
+  
+  prev_curve = TestingEquityReturnsMat[,i]
+}
 
 
 
