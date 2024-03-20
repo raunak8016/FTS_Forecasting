@@ -3,7 +3,7 @@ library("ftsa")
 library("rainbow")
 
 # mat =load("ProcessedRData/2020_SPY_cidr_2020-06-15_2020-08-11_matrix.RData")
-mat =load("ProcessedRData/2020_SPY_prices_2020-06-15_2020-08-11_matrix.RData")
+mat =load("ProcessedRData/2020_SPY_cidr_2020-07-06_2020-09-02_matrix.RData")
 mat =as.matrix(returns_matrix)
 
 matplot(returns_matrix, type="l")
@@ -21,8 +21,8 @@ returns_matrix = first_difference_matrix
 
 # splitting  
   
-returns_matrix_test = returns_matrix[,36:39]
-returns_matrix = returns_matrix[,1:35]
+returns_matrix_test = returns_matrix[,39:43]
+returns_matrix = returns_matrix[,1:38]
 
 matplot(returns_matrix, type="l")
 matplot(returns_matrix_test, type="l")
@@ -55,15 +55,21 @@ matplot(returns_matrix_test, type="l")
 
 # T_stationary(returns_matrix)
 
-colnames(returns_matrix) <- c(1:35)
+colnames(returns_matrix) <- c(1:38)
 
 
 # forecasting
 
 fts_returns = fts(c(1:40), returns_matrix, xname="Time", yname="Return")
 
-fit = ftsm(y = fts_returns)
-forecast = forecast(fit,h=5)
+fit = ftsm(y = fts_returns, order=6)
+# forecast = forecast(fit,h=5)
+
+forecast = forecast(fit,h=5, method="arima")
+
+plot(forecast, "components")
+
+
 pred = forecast$mean$y
 
 # plotting fit
@@ -80,7 +86,7 @@ lines(returns_matrix[,3],col='red')
 quartz()
 par( mfrow= c(3,2) )
 for (i in 1:ncol(returns_matrix_test)) {
-  plot(returns_matrix_test[,i],type='l', ylim=c(-1.5,1.5))
+  plot(returns_matrix_test[,i],type='l', ylim=c(-0.5,0.5))
   lines(pred[,i], col='red')
   lines(forecast$lower$y[,i], col = 3); lines(forecast$upper$y[,i], col = 3)
 }

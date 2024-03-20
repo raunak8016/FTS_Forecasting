@@ -15,5 +15,7 @@ def create_csv_return_data_by_stock(stock: str, year: int, create_returns_csv=Tr
         prices_df = convert_prices_to_returns(prices_df)
         prices_df.to_csv(f'ProcessedCSVData/{year}_{stock}_returns.csv', index=False)
 
-create_csv_return_data_by_stock('AAPL', 2020)
-create_csv_return_data_by_stock('MSFT', 2020)
+create_csv_return_data_by_stock('SPY', 2020)
+
+# create_csv_return_data_by_stock('AAPL', 2020)
+# create_csv_return_data_by_stock('MSFT', 2020)

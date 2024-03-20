@@ -1,7 +1,7 @@
 library(fda)
 library(tidyverse)
 
-equity_returns_matrix_name = "2020_SPY_cidr_2020-06-15_2020-08-11_matrix"
+equity_returns_matrix_name = "2020_SPY_cidr_2020-07-06_2020-09-02_matrix"
 
 # data processing
 mat =load(paste("ProcessedRData/", equity_returns_matrix_name, ".RData", sep=""))
@@ -12,14 +12,14 @@ dim(returns_matrix)
 EquityReturnsMat = as.matrix(returns_matrix)
 
 # training set
-matplot(EquityReturnsMat[,1:30], type="l", xlab="Time (15*x min)", ylab="CIDR (%)")
+matplot(EquityReturnsMat[,1:38], type="l", xlab="Time (15*x min)", ylab="CIDR (%)")
 
 # testing set
-matplot(EquityReturnsMat[,31:40], type="l")
+matplot(EquityReturnsMat[,39:43], type="l")
 
-TestingEquityReturnsMat = EquityReturnsMat[,31:40]
+TestingEquityReturnsMat = EquityReturnsMat[,39:43]
 
-EquityReturnsMat = EquityReturnsMat[,1:30]
+EquityReturnsMat = EquityReturnsMat[,1:38]
 
 matplot(EquityReturnsMat, type="l")
 
@@ -95,14 +95,14 @@ Forecasted_next_year <- integral_estimate+beta0mat[1:40]
 Yhat_mat <- eval.fd(Returns.times, Yhat_fd)
 
 for (i in 1:8) {
-  matplot(EquityReturnsMat[,i], type="l", ylim=c(-2,2), main=paste(i), col="blue")
+  matplot(EquityReturnsMat[,i+1], type="l", ylim=c(-2,2), main=paste(i), col="blue")
   lines(Forecasted_next_year[,i+1], col="green")
   lines(Yhat_mat[,i], col="red")
 }
 
 
 # forecast for test dataset
-prev_curve = EquityReturnsMat[,30]
+prev_curve = EquityReturnsMat[,38]
 
 for (i in 1:8) {
   prev_curve_fd = smooth.basis(ReturnsDayTime, prev_curve, D2fdPar)$fd
@@ -112,7 +112,7 @@ for (i in 1:8) {
   forecasted_test_years <- f_integral_estimate+beta0mat
   
   matplot(TestingEquityReturnsMat[,i], type="l", ylim=c(-2,2), main=paste("Forecast", i))
-  lines(forecasted_test_years)
+  lines(forecasted_test_years, col="red")
   
   prev_curve = TestingEquityReturnsMat[,i]
 }
