@@ -91,6 +91,15 @@ for (i in 1:ncol(returns_matrix_test)) {
   lines(forecast$lower$y[,i], col = 3); lines(forecast$upper$y[,i], col = 3)
 }
 
+# MAE
+mean(abs(pred-returns_matrix_test))
+
+# MAPE
+mean(abs(pred-returns_matrix_test)/returns_matrix_test)
+
+# MSE
+mean((pred-returns_matrix_test)^2)
+
 write.table(pred,file='ftsamodel_pred.csv',sep=',')
 
 # plot(forecast(ftsm(fts_prices, order=4), h=45), "components")

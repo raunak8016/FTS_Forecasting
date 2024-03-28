@@ -3,8 +3,8 @@ library(tidyverse)
 
 
 # data processing
-vec = read.csv("ProcessedCSVData/PJME_prices.csv")
-vec =as.vector(vec[,2])
+vec = read.csv("ProcessedCSVData/electricity_prices.csv")
+vec =as.vector(vec[,3])
 prices_matrix = matrix(vec, nrow=24, ncol = 59)
 
 dim(prices_matrix)
@@ -39,6 +39,16 @@ D2fdPar = fdPar(ReturnsBasis, lambda=0.1)
 
 EquityReturnsMatfd = smooth.basis(ReturnsDayTime, EquityReturnsMat, D2fdPar)$fd
 
+returns_matrix = eval.fd(c(0:23), EquityReturnsMatfd)
+
+matplot(returns_matrix, type="l")
+
+EquityReturnsMatTestfd = smooth.basis(ReturnsDayTime, returns_matrix_test, D2fdPar)$fd
+
+returns_matrix_test = eval.fd(c(0:23), EquityReturnsMatTestfd)
+
+matplot(returns_matrix_test, type="l")
+
 # view fit of each functional time series curve
 
 # plotfit.fd(EquityReturnsMat, ReturnsDayTime, EquityReturnsMatfd)
@@ -71,7 +81,8 @@ Returns.beta1mat = eval.bifd(Returns.times, Returns.times, Returns.linmod$beta1e
 
 persp(Returns.times, Returns.times, Returns.beta1mat,
       xlab="Time (h)", ylab="Time (h)",zlab="beta(s,t)",
-      cex.lab=1,cex.axis=1.5, theta=-20)
+      ticktype = "detailed",
+      cex.lab=1,cex.axis=1.5, theta=-30)
 
 
 # setting up prediction
@@ -93,29 +104,47 @@ integral_estimate <- inprod(b1_s,LastYear)
 Forecasted_next_year <- integral_estimate+beta0mat[1:24]
 
 Yhat_mat <- eval.fd(Returns.times, Yhat_fd)
-
-for (i in 1:5) {
-  matplot(EquityReturnsMat[,i], type="l", ylim=c(23000,50000), main=paste(i), col="blue")
+par(mfrow=c(4,2))
+for (i in 1:8) {
+  matplot(EquityReturnsMat[,i], type="l", ylim=c(0,400), main=paste(i), col="blue")
   lines(Forecasted_next_year[,i+1], col="green")
   lines(Yhat_mat[,i], col="red")
 }
-
+dev.off()
 
 # forecast for test dataset
 prev_curve = EquityReturnsMat[,50]
-par(mfrow= c(2,4))
+par(mfrow= c(4,2))
+forecast_mat = matrix(data=NA, nrow = 24, ncol = 8)
 for (i in 1:8) {
   prev_curve_fd = smooth.basis(ReturnsDayTime, prev_curve, D2fdPar)$fd
-
+  
   f_integral_estimate <- inprod(b1_s,prev_curve_fd)
   forecasted_test_years <- f_integral_estimate+beta0mat
+  forecast_mat[,i] = forecasted_test_years
+  plot.fd(smooth.basis(ReturnsDayTime, forecasted_test_years, D2fdPar)$fd, col="red", ylim=c(50,400), main=paste("Curve", i), xlab="Time (h)", ylab="Price")
+  lines(0:23, returns_matrix_test[,i])
   
-  plot.fd(smooth.basis(ReturnsDayTime, forecasted_test_years, D2fdPar)$fd, col="red", ylim=c(20000,50000), main=paste("Forecast Num:", i), xlab="Time (h)", ylab="Price")
-  lines(TestingEquityReturnsMat[,i])
-  
-  prev_curve = TestingEquityReturnsMat[,i]
+  prev_curve = forecasted_test_years
 }
 
+# MAE
+mean(abs(forecast_mat-returns_matrix_test))
+
+# MAPE
+mean(abs(forecast_mat-returns_matrix_test)/returns_matrix_test)
+
+# MSE
+mean((forecast_mat-returns_matrix_test)^2)
+
+error_by_curve = matrix(nrow=2, ncol = 8)
+
+for (i in 1:ncol(pred)) {
+  error_by_curve[1,i] = mean(abs(pred[,i]-returns_matrix_test[,i]))
+  error_by_curve[2,i] = mean((pred[,i]-returns_matrix_test[,i])^2)
+}
+
+write.table(error_by_curve,file='functionalfunctional_amodel_pred.csv',sep=',')
 
 
 

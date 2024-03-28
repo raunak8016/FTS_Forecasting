@@ -42,8 +42,8 @@ points(a, b-2*d, type="b", col = 6)
 dev.off()
 plot(a, y, type="l", col=1, ylim=c(-0.05, 0.2), xlab="Year", ylab="Electricity Consumption (GWh)", main="Model Forecast for 2021-2022")
 points(a, b, type="b", col = 2)
-# points(a, b+2*d, type="b", col = 4)
-# points(a, b-2*d, type="b", col = 6)
+points(a, b+2*d, type="b", col = 4)
+points(a, b-2*d, type="b", col = 6)
 
 boxtr(z, d = 3)
 
