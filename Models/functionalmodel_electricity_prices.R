@@ -41,6 +41,8 @@ EquityReturnsMatfd = smooth.basis(ReturnsDayTime, EquityReturnsMat, D2fdPar)$fd
 
 returns_matrix = eval.fd(c(0:23), EquityReturnsMatfd)
 
+plot.fd(EquityReturnsMatfd, xlab="Hour", ylab="Price")
+
 matplot(returns_matrix, type="l")
 
 EquityReturnsMatTestfd = smooth.basis(ReturnsDayTime, returns_matrix_test, D2fdPar)$fd

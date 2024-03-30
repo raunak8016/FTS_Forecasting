@@ -12,7 +12,7 @@ dim(returns_matrix)
 EquityReturnsMat = as.matrix(returns_matrix)
 
 # training set
-matplot(EquityReturnsMat[,1:38], type="l", xlab="Time (15*x min)", ylab="CIDR (%)")
+matplot(EquityReturnsMat[,1:38], type="l", xlab="Time (10*x min)", ylab="CIDR (%)")
 
 # testing set
 matplot(EquityReturnsMat[,39:43], type="l")
