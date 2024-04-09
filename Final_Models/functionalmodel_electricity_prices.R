@@ -41,6 +41,8 @@ EquityReturnsMatfd = smooth.basis(ReturnsDayTime, EquityReturnsMat, D2fdPar)$fd
 
 returns_matrix = eval.fd(c(0:23), EquityReturnsMatfd)
 
+plot.fd(EquityReturnsMatfd, xlab="Hour", ylab="Price")
+
 matplot(returns_matrix, type="l")
 
 EquityReturnsMatTestfd = smooth.basis(ReturnsDayTime, returns_matrix_test, D2fdPar)$fd
@@ -76,19 +78,39 @@ Returns.linmod = linmod(NextYear, LastYear, ReturnsBetaList)
 Returns.times = seq(0, 23, 1)
 Returns.beta1mat = eval.bifd(Returns.times, Returns.times, Returns.linmod$beta1estbifd)
 
+par(mfrow=c(1,2))
+persp(Returns.times, Returns.times, matrix(data=0, nrow=length(Returns.times), ncol=length(Returns.times)),
+      zlim = c(-0.5, 1.5), # Example z-axis limits
+      cex.lab=1, cex.axis=1.5, theta=-30,
+      xlab="", ylab="", zlab="", ticktype = "simple", axes = FALSE)
+
+par(new=TRUE)
 persp(Returns.times, Returns.times, Returns.beta1mat,
       xlab="Time (h)", ylab="Time (h)",zlab="beta(s,t)",
       ticktype = "detailed",
-      cex.lab=1,cex.axis=1.5, theta=-30)
+      cex.lab=1.5,cex.axis=1.2, theta=-30, font.lab = 2)
+
+persp(Returns.times, Returns.times, matrix(data=0, nrow=length(Returns.times), ncol=length(Returns.times)),
+      zlim = c(-0.5, 1.5), # Example z-axis limits
+      cex.lab=1, cex.axis=1.5, theta=150,
+      xlab="", ylab="", zlab="", ticktype = "simple", axes = FALSE)
+
+par(new=TRUE)
+persp(Returns.times, Returns.times, Returns.beta1mat,
+      xlab="Time (h)", ylab="Time (h)",zlab="beta(s,t)",
+      ticktype = "detailed",
+      cex.lab=1.5,cex.axis=1.2, theta=150, font.lab = 2)
 
 
+dev.off()
 # setting up prediction
 
 Yhat_fd <- fd(Returns.linmod$yhatfdobj$coefs, Returns.linmod$yhatfdobj$basis)
 plot.fd(Yhat_fd)
 
 beta0mat = eval.fd(Returns.times, Returns.linmod$beta0estfd)
-plot(beta0mat, type="l", xlab="Time (h)", ylab="Price")
+par(mfrow=)
+plot(beta0mat, type="l", xlab='Time (h)', ylab='Price', font.lab = 2, cex.lab=1.3)
 
 
 b1_s <- fd(Returns.linmod$beta1estbifd$coefs, Returns.linmod$beta1estbifd$sbasis)
@@ -101,9 +123,10 @@ integral_estimate <- inprod(b1_s,LastYear)
 Forecasted_next_year <- integral_estimate+beta0mat[1:24]
 
 Yhat_mat <- eval.fd(Returns.times, Yhat_fd)
+quartz()
 par(mfrow=c(4,2))
 for (i in 1:8) {
-  matplot(EquityReturnsMat[,i], type="l", ylim=c(0,400), main=paste(i), col="blue")
+  matplot(EquityReturnsMat[,i+1], type="l", ylim=c(0,400), main=paste(i), col="blue")
   lines(Forecasted_next_year[,i+1], col="green")
   lines(Yhat_mat[,i], col="red")
 }
@@ -119,7 +142,7 @@ for (i in 1:8) {
   f_integral_estimate <- inprod(b1_s,prev_curve_fd)
   forecasted_test_years <- f_integral_estimate+beta0mat
   forecast_mat[,i] = forecasted_test_years
-  plot.fd(smooth.basis(ReturnsDayTime, forecasted_test_years, D2fdPar)$fd, col="red", ylim=c(50,400), main=paste("Curve", i), xlab="Time (h)", ylab="Price")
+  plot.fd(smooth.basis(ReturnsDayTime, forecasted_test_years, D2fdPar)$fd, col="red", ylim=c(50,400), main=paste("Curve", i), xlab="Time (h)", ylab="Price", cex.lab=1.2, font.lab=2, cex.main=2)
   lines(0:23, TestingEquityReturnsMat[,i])
   
   prev_curve = forecasted_test_years

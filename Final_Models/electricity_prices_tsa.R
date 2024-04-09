@@ -23,7 +23,6 @@ diff1= 1
 mytsplot(z, ind=0, d=diff1, lag = 70)
 mytsplot(diff(z, d=diff1), ind=0, d = 24, lag = 50)
 
-
 z.fit <- arima(z, order=c(24,1,0), seasonal=
                     list(order=c(0,1,1), period = 24))
 

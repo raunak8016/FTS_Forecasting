@@ -65,7 +65,7 @@ plot.fd(EquityReturnsMatTestfd, xlab = "Hour", ylab="Price", main="Test")
 #       ticktype = "detailed",
 #       xlab="Time (24 Hours)",
 #       ylab="Time (24 hours)",
-#       zlab="")
+#       zlab="", cex.lab=1.5, font.lab=2, nticks=5, cex.axis=1.5)
 # contour(daytime, daytime, logprecvar_mat)
 # plot(logprecvar_mat[,1])
 # 
@@ -120,7 +120,7 @@ lines(returns_matrix[,3],col='red')
 quartz()
 par( mfrow= c(4,2) )
 for (i in 1:ncol(returns_matrix_test)) {
-  plot(returns_matrix_test[,i],type='l', ylim=c(0,400), xlab="Hour", ylab="Price", main=paste("Curve", i))
+  plot(returns_matrix_test[,i],type='l', ylim=c(0,400), xlab="Hour", ylab="Price", main=paste("Curve", i), cex.lab=1.2, font.lab=2, cex.main=2)
   lines(pred[,i], col='red')
   # lines(forecast$lower$y[,i], col = 3); lines(forecast$upper$y[,i], col = 3)
 }
